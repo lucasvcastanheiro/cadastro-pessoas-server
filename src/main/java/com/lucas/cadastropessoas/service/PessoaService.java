@@ -2,6 +2,8 @@ package com.lucas.cadastropessoas.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.lucas.cadastropessoas.dto.PessoaDTO;
@@ -28,6 +30,12 @@ public class PessoaService {
     public PessoaDTO buscarUm(Long id) throws PessoaNaoEncontradaException {
         Pessoa pessoaEncontrada = pessoaRepository.findById(id).orElseThrow(() -> new PessoaNaoEncontradaException(id));
         return toDto(pessoaEncontrada);
+    }
+
+    public Page<PessoaDTO> buscaPaginada(int pagina, int registros) {
+        PageRequest paginacao = PageRequest.of(pagina, registros);
+
+        return pessoaRepository.buscaPaginada(paginacao).map(this::toDto);
     }
 
     public Pessoa toModel(PessoaDTO pessoaDTO) {
