@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.lucas.cadastropessoas.dto.PessoaDTO;
 import com.lucas.cadastropessoas.entity.Pessoa;
+import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.repository.PessoaRepository;
 
 @Service
@@ -22,6 +23,11 @@ public class PessoaService {
         Pessoa pessoaInserida = pessoaRepository.save(pessoa);
 
         return toDto(pessoaInserida);
+    }
+
+    public PessoaDTO buscarUm(Long id) throws PessoaNaoEncontradaException {
+        Pessoa pessoaEncontrada = pessoaRepository.findById(id).orElseThrow(() -> new PessoaNaoEncontradaException(id));
+        return toDto(pessoaEncontrada);
     }
 
     public Pessoa toModel(PessoaDTO pessoaDTO) {
