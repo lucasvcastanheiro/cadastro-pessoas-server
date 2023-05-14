@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Calendar;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import com.lucas.cadastropessoas.builder.PessoaDTOBuilder;
 import com.lucas.cadastropessoas.dto.PessoaDTO;
 import com.lucas.cadastropessoas.entity.Pessoa;
+import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.repository.PessoaRepository;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -135,5 +137,28 @@ public class PessoaServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
 
+    }
+
+    @Test
+    @DisplayName("Quando receber um ID cadastrado deve retornar uma Pessoa")
+    public void quandoReceberUmIdCadastradoDeveRetornarUmaPessoa() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+        Pessoa pessoa = pessoaService.toModel(pessoaDTO);
+
+        when(pessoaRepository.findById(any(Long.class))).thenReturn(Optional.of(pessoa));
+
+        PessoaDTO pessoaDTOEncontrada = pessoaService.buscarUm(pessoaDTO.getId());
+
+        assertEquals(pessoaDTO, pessoaDTOEncontrada);
+    }
+
+    @Test
+    @DisplayName("Quando receber um ID não cadastrado deve levantar um erro")
+    public void quandoReceberUmIdNaoCadastradoDeveLevantarUmErro() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        assertThrows(PessoaNaoEncontradaException.class, () -> pessoaService.buscarUm(pessoaDTO.getId()));
     }
 }
