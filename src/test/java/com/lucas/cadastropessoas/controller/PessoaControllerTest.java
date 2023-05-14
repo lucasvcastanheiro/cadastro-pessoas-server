@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucas.cadastropessoas.builder.PessoaDTOBuilder;
 import com.lucas.cadastropessoas.dto.PessoaDTO;
+import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.service.PessoaService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -109,8 +110,7 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -136,8 +136,7 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -152,8 +151,7 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -168,8 +166,7 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -187,8 +184,7 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -203,7 +199,36 @@ public class PessoaControllerTest {
                 .content(objectMapper.writeValueAsString(pessoaDTO))
                 .characterEncoding("utf-8"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Quando um get for chamado com um ID cadastrado deve retornar uma única pessoa")
+    public void getChamadoComParametroIDDeveRetornarUmaUnicaPessoa() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaService.buscarUm(any(Long.class))).thenReturn(pessoaDTO);
+
+        mockMvc.perform(get(BASE_URL + "/" + pessoaDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(pessoaService, times(1)).buscarUm(any(Long.class));
+    }
+
+    @Test
+    @DisplayName("Quando um get for chamado com um ID NÃO cadastrado um erro é retornado")
+    public void getChamadoComIdNaoCadastradoRecebeUmErro() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaService.buscarUm(any(Long.class))).thenThrow(PessoaNaoEncontradaException.class);
+
+        mockMvc.perform(get(BASE_URL + "/" + pessoaDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        verify(pessoaService, times(1)).buscarUm(any(Long.class));
     }
 }
