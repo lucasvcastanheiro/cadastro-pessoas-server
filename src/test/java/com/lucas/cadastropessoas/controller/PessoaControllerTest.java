@@ -25,6 +25,8 @@ import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.service.PessoaService;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -220,15 +222,26 @@ public class PessoaControllerTest {
     @Test
     @DisplayName("Quando um get for chamado com um ID NÃO cadastrado um erro é retornado")
     public void getChamadoComIdNaoCadastradoRecebeUmErro() throws Exception {
-        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
-
         when(pessoaService.buscarUm(any(Long.class))).thenThrow(PessoaNaoEncontradaException.class);
 
-        mockMvc.perform(get(BASE_URL + "/" + pessoaDTO.getId())
+        mockMvc.perform(get(BASE_URL + "/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
         verify(pessoaService, times(1)).buscarUm(any(Long.class));
+    }
+
+    @Test
+    @DisplayName("Quando um delete for chamado com um id deve receber um OK")
+    public void deleteChamadoComUmIdDeveReceberUmOK() throws Exception {
+        doNothing().when(pessoaService).deletar(any(Long.class));
+
+        mockMvc.perform(delete(BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(pessoaService, times(1)).deletar(any(Long.class));
     }
 }
