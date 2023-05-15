@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
 import com.lucas.cadastropessoas.dto.PessoaDTO;
+import com.lucas.cadastropessoas.exception.CampoInvalidoException;
 import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.service.PessoaService;
 
@@ -27,7 +28,7 @@ public class PessoaController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public PessoaDTO cadastrar(@RequestBody @Valid PessoaDTO pessoaDTO) {
+    public PessoaDTO cadastrar(@RequestBody @Valid PessoaDTO pessoaDTO) throws CampoInvalidoException {
         return pessoaService.cadastrar(pessoaDTO);
     }
 

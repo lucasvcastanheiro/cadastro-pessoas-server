@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.lucas.cadastropessoas.dto.PessoaDTO;
 import com.lucas.cadastropessoas.entity.Pessoa;
+import com.lucas.cadastropessoas.exception.CampoInvalidoException;
 import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.repository.PessoaRepository;
+import com.lucas.cadastropessoas.validator.ValidarCPF;
+import com.lucas.cadastropessoas.validator.ValidarDataFutura;
 
 @Service
 public class PessoaService {
@@ -20,7 +23,23 @@ public class PessoaService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public PessoaDTO cadastrar(PessoaDTO pessoaDTO) {
+    public PessoaDTO cadastrar(PessoaDTO pessoaDTO) throws CampoInvalidoException {
+        if (pessoaDTO.getNome() == null || pessoaDTO.getNome().isEmpty()) {
+            throw new CampoInvalidoException("nome");
+        }
+
+        if (!ValidarCPF.cpfValido(pessoaDTO.getCpf())) {
+            throw new CampoInvalidoException("cpf");
+        }
+
+        if (ValidarDataFutura.dataFutura(pessoaDTO.getDataNascimento())) {
+            throw new CampoInvalidoException("dataNascimento");
+        }
+
+        if (pessoaDTO.getContatos() == null || pessoaDTO.getContatos().isEmpty()) {
+            throw new CampoInvalidoException("contatos");
+        }
+
         Pessoa pessoa = toModel(pessoaDTO);
         Pessoa pessoaInserida = pessoaRepository.save(pessoa);
 
