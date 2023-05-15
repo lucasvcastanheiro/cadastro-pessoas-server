@@ -20,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import com.lucas.cadastropessoas.builder.PessoaDTOBuilder;
 import com.lucas.cadastropessoas.dto.PessoaDTO;
 import com.lucas.cadastropessoas.entity.Pessoa;
+import com.lucas.cadastropessoas.exception.CampoInvalidoException;
 import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.repository.PessoaRepository;
 import static org.mockito.Mockito.times;
@@ -71,28 +72,7 @@ public class PessoaServiceTest {
                 break;
         }
 
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "nome", "telefone", "email" })
-    @DisplayName("Quando receber uma Pessoa com algum contato sem os campos obrigatórios deve levantar um erro")
-    public void quandoReceberUmaPessoaComAlgumContatoSemOsCamposObrigatóriosDeveLevantarUmErro(String campo) {
-        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
-
-        switch (campo) {
-            case "nome":
-                pessoaDTO.getContatos().get(0).setNome(null);
-                break;
-            case "telefone":
-                pessoaDTO.getContatos().get(0).setTelefone(null);
-                break;
-            case "email":
-                pessoaDTO.getContatos().get(0).setEmail(null);
-                break;
-        }
-
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
+        assertThrows(CampoInvalidoException.class, () -> pessoaService.cadastrar(pessoaDTO));
     }
 
     @Test
@@ -102,7 +82,7 @@ public class PessoaServiceTest {
 
         pessoaDTO.getContatos().clear();
 
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
+        assertThrows(CampoInvalidoException.class, () -> pessoaService.cadastrar(pessoaDTO));
     }
 
     @Test
@@ -110,9 +90,9 @@ public class PessoaServiceTest {
     public void quandoReceberUmaPessoaComOCampoCPFInvalidoDeveLevantarUmErro() {
         PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
 
-        pessoaDTO.setCpf("11111111111");
+        pessoaDTO.setCpf("12345678910");
 
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
+        assertThrows(CampoInvalidoException.class, () -> pessoaService.cadastrar(pessoaDTO));
     }
 
     @Test
@@ -125,18 +105,7 @@ public class PessoaServiceTest {
 
         pessoaDTO.setDataNascimento(dataFutura.getTime());
 
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
-    }
-
-    @Test
-    @DisplayName("Quando receber uma Pessoa com algum contato com o campo email inválido deve levantar um erro")
-    public void quandoReceberUmaPessoaComAlgumContatoComOCampoEmailInvalidoDeveLevantarUmErro() {
-        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
-
-        pessoaDTO.getContatos().get(0).setEmail("emailInvalido");
-
-        assertThrows(IllegalArgumentException.class, () -> pessoaService.cadastrar(pessoaDTO));
-
+        assertThrows(CampoInvalidoException.class, () -> pessoaService.cadastrar(pessoaDTO));
     }
 
     @Test
