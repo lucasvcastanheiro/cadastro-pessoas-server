@@ -23,6 +23,8 @@ import com.lucas.cadastropessoas.entity.Pessoa;
 import com.lucas.cadastropessoas.exception.CampoInvalidoException;
 import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.repository.PessoaRepository;
+
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -124,10 +126,18 @@ public class PessoaServiceTest {
     @Test
     @DisplayName("Quando receber um ID não cadastrado deve levantar um erro")
     public void quandoReceberUmIdNaoCadastradoDeveLevantarUmErro() throws Exception {
-        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
-
         when(pessoaRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
-        assertThrows(PessoaNaoEncontradaException.class, () -> pessoaService.buscarUm(pessoaDTO.getId()));
+        assertThrows(PessoaNaoEncontradaException.class, () -> pessoaService.buscarUm(1L));
+    }
+
+    @Test
+    @DisplayName("Quando receber um ID não cadastrado deve levantar um erro")
+    public void quandoReceberUmIdDeveDeletarUmUsuario() throws Exception {
+        doNothing().when(pessoaRepository).deleteById(any(Long.class));
+
+        pessoaService.deletar(1L);
+
+        verify(pessoaRepository, times(1)).deleteById(any(Long.class));
     }
 }
