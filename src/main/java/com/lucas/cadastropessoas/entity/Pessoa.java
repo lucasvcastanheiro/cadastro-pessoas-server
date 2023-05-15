@@ -28,7 +28,7 @@ public class Pessoa {
     @Temporal(TemporalType.DATE)
     private Date dataNascimento;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "pessoa_id", nullable = false)
     private List<Contato> contatos;
 }

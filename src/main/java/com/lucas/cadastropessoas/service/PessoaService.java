@@ -46,6 +46,10 @@ public class PessoaService {
         return toDto(pessoaInserida);
     }
 
+    public void deletar(Long id) {
+        pessoaRepository.deleteById(id);
+    }
+
     public PessoaDTO buscarUm(Long id) throws PessoaNaoEncontradaException {
         Pessoa pessoaEncontrada = pessoaRepository.findById(id).orElseThrow(() -> new PessoaNaoEncontradaException(id));
         return toDto(pessoaEncontrada);

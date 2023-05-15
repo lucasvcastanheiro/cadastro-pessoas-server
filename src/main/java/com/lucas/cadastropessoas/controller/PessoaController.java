@@ -2,6 +2,7 @@ package com.lucas.cadastropessoas.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,14 +34,21 @@ public class PessoaController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.FOUND)
     public PessoaDTO buscarUm(@PathVariable Long id) throws PessoaNaoEncontradaException {
         return pessoaService.buscarUm(id);
     }
 
     @GetMapping("/paginar")
+    @ResponseStatus(HttpStatus.FOUND)
     public Page<PessoaDTO> buscaPaginada(
             @RequestParam(value = "registros", required = false, defaultValue = "5") int registros,
             @RequestParam(value = "pagina", required = false, defaultValue = "0") int pagina) {
         return pessoaService.buscaPaginada(pagina, registros);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletar(@PathVariable Long id) {
+        pessoaService.deletar(id);
     }
 }
