@@ -140,4 +140,23 @@ public class PessoaServiceTest {
 
         verify(pessoaRepository, times(1)).deleteById(any(Long.class));
     }
+
+    // @Test
+    // @DisplayName("Quando receber um Id e dados validos deve atualizar a pessoa")
+    // public void quandoReceberUmIdEDadosValidosDeveAtualizarAPessoa() throws
+    // Exception {
+    // PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+    // Pessoa pessoaExperada = pessoaService.toModel(pessoaDTO);
+
+    // when(this.pessoaService.buscarUm(any(Long.class))).thenReturn(pessoaDTO);
+    // when(pessoaRepository.save(any(Pessoa.class))).thenReturn(pessoaExperada);
+
+    // PessoaDTO pessoaAtualizada = pessoaService.atualizar(pessoaDTO.getId(),
+    // pessoaDTO);
+
+    // assertEquals(pessoaDTO, pessoaAtualizada);
+
+    // verify(pessoaRepository, times(1)).save(any(Pessoa.class));
+    // verify(pessoaService, times(1)).buscarUm(any(Long.class));
+    // }
 }
