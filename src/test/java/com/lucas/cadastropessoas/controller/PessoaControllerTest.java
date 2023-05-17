@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucas.cadastropessoas.builder.PessoaDTOBuilder;
 import com.lucas.cadastropessoas.dto.PessoaDTO;
+import com.lucas.cadastropessoas.exception.CampoInvalidoException;
 import com.lucas.cadastropessoas.exception.PessoaNaoEncontradaException;
 import com.lucas.cadastropessoas.service.PessoaService;
 
@@ -243,5 +244,50 @@ public class PessoaControllerTest {
                 .andExpect(status().isOk());
 
         verify(pessoaService, times(1)).deletar(any(Long.class));
+    }
+
+    @Test
+    @DisplayName("Quando um put for chamado com campos válidos deve retornar um OK")
+    public void putChamadoComCamposValidosDeveRetornarUmOK() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaService.atualizar(any(Long.class), any(PessoaDTO.class))).thenReturn(pessoaDTO);
+
+        mockMvc.perform(put(BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pessoaDTO)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(pessoaService, times(1)).atualizar(any(Long.class), any(PessoaDTO.class));
+    }
+
+    @Test
+    @DisplayName("Quando um put for chamado com algum campo inválido deve retornar um ERRO")
+    public void putChamadoComAlgumCampoInvalidoDeveRetornarUmERRO() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaService.atualizar(any(Long.class), any(PessoaDTO.class))).thenThrow(CampoInvalidoException.class);
+
+        mockMvc.perform(put(BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pessoaDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Quando um put for chamado com um id não cadastrado deve retornar um ERRO")
+    public void putChamadoComUmIdNaoCadastradoDeveRetornarUmERRO() throws Exception {
+        PessoaDTO pessoaDTO = PessoaDTOBuilder.builder().build().toPessoaDTO();
+
+        when(pessoaService.atualizar(any(Long.class), any(PessoaDTO.class)))
+                .thenThrow(PessoaNaoEncontradaException.class);
+
+        mockMvc.perform(put(BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pessoaDTO)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }
