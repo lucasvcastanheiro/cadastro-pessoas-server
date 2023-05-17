@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lucas.cadastropessoas.dto.PessoaDTO;
@@ -56,9 +57,34 @@ public class PessoaService {
     }
 
     public Page<PessoaDTO> buscaPaginada(int pagina, int registros) {
-        PageRequest paginacao = PageRequest.of(pagina, registros);
+        PageRequest paginacao = PageRequest.of(pagina, registros, Sort.by("id"));
 
         return pessoaRepository.buscaPaginada(paginacao).map(this::toDto);
+    }
+
+    public PessoaDTO atualizar(Long id, PessoaDTO pessoaDTO)
+            throws PessoaNaoEncontradaException, CampoInvalidoException {
+        if (pessoaDTO.getNome() == null || pessoaDTO.getNome().isEmpty()) {
+            throw new CampoInvalidoException("nome");
+        }
+
+        if (!ValidarCPF.cpfValido(pessoaDTO.getCpf())) {
+            throw new CampoInvalidoException("cpf");
+        }
+
+        if (ValidarDataFutura.dataFutura(pessoaDTO.getDataNascimento())) {
+            throw new CampoInvalidoException("dataNascimento");
+        }
+
+        Pessoa pessoaEncontrada = toModel(this.buscarUm(id));
+
+        pessoaEncontrada.setNome(pessoaDTO.getNome());
+        pessoaEncontrada.setCpf(pessoaDTO.getCpf());
+        pessoaEncontrada.setDataNascimento(pessoaDTO.getDataNascimento());
+
+        Pessoa pessoaAtualizada = pessoaRepository.save(pessoaEncontrada);
+
+        return toDto(pessoaAtualizada);
     }
 
     public Pessoa toModel(PessoaDTO pessoaDTO) {
